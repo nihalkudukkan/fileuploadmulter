@@ -28,7 +28,6 @@ const storage = multer.diskStorage({
             console.log("error");
             cb(new Error("file already present"), false)
         } else {
-            console.log("Added");
             cb(null, file.originalname)
         }
     }
@@ -79,6 +78,34 @@ app.post('/test', (req, res)=>{
         message: "test complete"
     })
 })
+
+//shows all files
+app.get('/files', (req, res) => {
+    const directoryPath = path.join(__dirname, 'uploads');
+    
+    fs.readdir(directoryPath, (err, files) => {
+      if (err) {
+        return res.status(500).json({
+          message: 'Unable to scan files',
+          error: err
+        });
+      }
+  
+      // Generate file URLs
+      const fileUrls = files.map(file => {
+        return {
+          fileName: file,
+          url: `http://localhost:5000/uploads/${file}`
+        };
+      });
+  
+      // Send the file URLs as a JSON response
+      res.json({
+        message: 'Files retrieved successfully',
+        files: fileUrls
+      });
+    });
+  });
 
 app.listen(5000, () => {
     console.log(`Server is running on port http://localhost:5000`);
